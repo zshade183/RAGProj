@@ -1,36 +1,47 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
-from pydantic import BaseModel
+
+from app.api.v1.router import api_router
+from app.core.config import get_settings
+from app.db.session import engine
+
+settings = get_settings()
 
 
-class HealthResponse(BaseModel):
-    """健康检查接口的返回数据结构。"""
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    """管理应用启动和关闭时使用的资源。"""
 
-    status: str
-    service: str
-
-
-app = FastAPI(
-    title="RAG 企业知识库",
-    description="基于 LangGraph 和 Milvus 的企业文档问答系统",
-    version="0.1.0",
-)
+    yield
+    await engine.dispose()
 
 
-@app.get("/")
-async def root() -> dict[str, str]:
-    """项目根接口。"""
+def create_application() -> FastAPI:
+    """创建并配置 FastAPI 应用。"""
 
-    return {
-        "message": "RAG 企业知识库后端已经启动",
-        "docs": "/docs",
-    }
-
-
-@app.get("/api/v1/health", response_model=HealthResponse)
-async def health_check() -> HealthResponse:
-    """检查后端服务是否正常运行。"""
-
-    return HealthResponse(
-        status="ok",
-        service="rag-enterprise-knowledge-base",
+    application = FastAPI(
+        title=settings.app_name,
+        description="基于 LangGraph 和 Milvus 的企业文档问答系统",
+        version="0.1.0",
+        debug=settings.debug,
+        lifespan=lifespan,
     )
+
+    application.include_router(
+        api_router,
+        prefix=settings.api_v1_prefix,
+    )
+
+    @application.get("/")
+    async def root() -> dict[str, str]:
+        return {
+            "message": f"{settings.app_name}后端已经启动",
+            "docs": "/docs",
+        }
+
+    return application
+
+
+app = create_application()

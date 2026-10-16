@@ -5,6 +5,7 @@ backend/app/api/__init__.py
 backend/app/api/v1/__init__.py
 backend/app/api/v1/endpoints/__init__.py
 backend/app/core/__init__.py
+backend/app/core/config.py
 backend/app/db/__init__.py
 backend/app/models/__init__.py
 backend/app/repositories/__init__.py
