@@ -1,0 +1,48 @@
+# 环境变量和密钥
+.env
+.env.*
+!.env.example
+
+# Python 缓存和虚拟环境
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# 前端依赖和构建结果
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# 用户上传及解析产生的数据
+storage/uploads/*
+storage/parsed/*
+storage/models/*
+evaluation/results/*
+
+# 保留空目录标记
+!storage/uploads/.gitkeep
+!storage/parsed/.gitkeep
+!evaluation/results/.gitkeep
+
+# Docker 数据卷
+volumes/
+
+# 日志
+*.log
+logs/
+
+# 编辑器配置
+.idea/
+.vscode/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
