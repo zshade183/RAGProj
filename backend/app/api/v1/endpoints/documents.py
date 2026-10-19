@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +9,7 @@ from app.db.session import get_database_session
 from app.models.knowledge_base import KnowledgeBase
 from app.repositories.document import DocumentRepository
 from app.schemas.document import DocumentRead
+from app.services.documents.delete import delete_document
 from app.services.documents.download import build_download_response
 from app.services.documents.upload import upload_document
 
@@ -122,3 +123,25 @@ async def download_document(
         )
 
     return await build_download_response(document)
+
+
+# 删除文档
+@router.delete(
+    "/{document_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+)
+async def remove_document(
+    knowledge_base_id: UUID,
+    document_id: UUID,
+    session: DatabaseSession,
+) -> Response:
+    """删除文档原文件和数据库记录。"""
+
+    await delete_document(
+        knowledge_base_id=knowledge_base_id,
+        document_id=document_id,
+        session=session,
+    )
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

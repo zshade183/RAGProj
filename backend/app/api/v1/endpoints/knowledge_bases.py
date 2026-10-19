@@ -2,9 +2,12 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_database_session
+from app.models.document import Document
+from app.models.knowledge_base import KnowledgeBase
 from app.repositories.knowledge_base import KnowledgeBaseRepository
 from app.schemas.knowledge_base import (
     KnowledgeBaseCreate,
@@ -126,7 +129,6 @@ async def update_knowledge_base(
     return response
 
 
-# 删除知识库
 @router.delete(
     "/{knowledge_base_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -136,22 +138,37 @@ async def delete_knowledge_base(
     knowledge_base_id: UUID,
     session: DatabaseSession,
 ) -> Response:
-    """删除指定知识库。"""
-
-    repository = KnowledgeBaseRepository(session)
-    knowledge_base = await repository.get(knowledge_base_id)
-
-    if knowledge_base is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="知识库不存在",
-        )
+    """只允许删除没有文档的知识库。"""
 
     try:
-        await repository.delete(knowledge_base)
+        statement = (
+            select(KnowledgeBase).where(KnowledgeBase.id == knowledge_base_id).with_for_update()
+        )
+        knowledge_base = await session.scalar(statement)
+
+        if knowledge_base is None:
+            raise HTTPException(
+                status_code=404,
+                detail="知识库不存在",
+            )
+
+        document_id = await session.scalar(
+            select(Document.id).where(Document.knowledge_base_id == knowledge_base_id).limit(1)
+        )
+
+        if document_id is not None:
+            raise HTTPException(
+                status_code=409,
+                detail="知识库中仍有文档，请先删除文档",
+            )
+
+        await session.delete(knowledge_base)
         await session.commit()
+
     except Exception:
         await session.rollback()
         raise
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+#eb02143a-6b9c-428f-a93d-389ad9ee7799

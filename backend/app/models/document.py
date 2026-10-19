@@ -35,7 +35,7 @@ class Document(Base):
         CheckConstraint(
             "status IN "
             "('uploading', 'uploaded', 'parsing', "
-            "'parsed', 'indexing', 'ready', 'failed')",
+            "'parsed', 'indexing', 'ready', 'failed', 'deleting')",
             name="status_allowed",
         ),
     )

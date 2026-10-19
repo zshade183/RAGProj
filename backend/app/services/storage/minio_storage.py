@@ -72,11 +72,16 @@ class MinioStorage:
             file_path=str(file_path),
         )
 
-    def delete_file(self, *, object_name: str) -> None:
-        """删除指定对象。"""
+    def delete_file(
+        self,
+        *,
+        object_name: str,
+        bucket_name: str | None = None,
+    ) -> None:
+        """删除指定对象；未指定桶时使用默认桶。"""
 
         self.client.remove_object(
-            bucket_name=self.bucket_name,
+            bucket_name=(bucket_name if bucket_name is not None else self.bucket_name),
             object_name=object_name,
         )
 
