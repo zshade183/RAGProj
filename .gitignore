@@ -46,3 +46,6 @@ logs/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# 本地 Docker 镜像备份
+/minio-image.tar
