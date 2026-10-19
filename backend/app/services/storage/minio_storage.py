@@ -62,11 +62,12 @@ class MinioStorage:
         *,
         object_name: str,
         file_path: Path,
+        bucket_name: str | None = None,
     ) -> None:
-        """将对象下载到本地文件。"""
+        """从指定桶下载；未指定时使用默认桶。"""
 
         self.client.fget_object(
-            bucket_name=self.bucket_name,
+            bucket_name=(bucket_name if bucket_name is not None else self.bucket_name),
             object_name=object_name,
             file_path=str(file_path),
         )
