@@ -48,9 +48,9 @@ class Settings(BaseSettings):
     unstructured_api_url: str
 
     # 大模型
-    deepseek_api_key: SecretStr
-    deepseek_base_url: str
-    deepseek_model: str
+    rag_llm_api_key: SecretStr
+    rag_llm_base_url: str
+    rag_llm_model: str
 
     # 联网搜索
     tavily_api_key: SecretStr
@@ -60,6 +60,29 @@ class Settings(BaseSettings):
     embedding_device: Literal["cpu", "cuda"]
     reranker_model: str
     reranker_device: Literal["cpu", "cuda"]
+    model_local_files_only: bool = True
+
+    # 持久化处理任务（worker 与 API 使用同一份 .env）
+    processing_enabled: bool = True
+    worker_poll_seconds: int = 3
+    worker_lease_seconds: int = 90
+    worker_max_attempts: int = 3
+    worker_task_timeout: int = 7200
+    worker_embedding_device: Literal["cpu", "cuda", "auto"] = "cpu"
+    libreoffice_path: str = r"C:\Program Files\LibreOffice\program\soffice.com"
+    tesseract_path: str = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    ocr_languages: str = "chi_sim+eng"
+
+    rag_use_unstructured: bool = False
+    rag_web_enabled: bool = False
+    rag_max_rewrites: int = 2
+    rag_max_generations: int = 3
+    rag_semantic_chunking: bool = True
+    rag_semantic_embedding_provider: Literal["bge", "openai"] = "bge"
+    rag_semantic_openai_threshold: int = 5000
+    openai_embedding_base_url: str = "https://api.openai.com/v1"
+    openai_embedding_model: str = "text-embedding-3-small"
+    openai_embedding_api_key: SecretStr | None = None
 
     # 文件
     max_upload_size_mb: int

@@ -4,7 +4,7 @@ from logging.config import fileConfig
 from alembic import context
 from app.db.base import Base
 from app.db.session import database_url
-from app.models import Document, KnowledgeBase  # noqa: F401
+from app.models import Document, KnowledgeBase, ProcessingJob  # noqa: F401
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine

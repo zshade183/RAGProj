@@ -4,6 +4,8 @@ from typing import Any
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 
+from app.services.documents.visual_structure import extract_chart, extract_table
+
 
 def normalize_text(text: str) -> str:
     """保留换行，将 PowerPoint 软换行转换为普通换行。"""
@@ -39,31 +41,7 @@ def parse_shape(shape, shape_path: str) -> dict[str, Any]:
         return block
 
     if shape.has_table:
-        cells = []
-
-        for row_index, row in enumerate(shape.table.rows):
-            for column_index, cell in enumerate(row.cells):
-                cells.append(
-                    {
-                        "row": row_index,
-                        "column": column_index,
-                        "text": normalize_text(cell.text),
-                        "is_merge_origin": cell.is_merge_origin,
-                        "is_spanned": cell.is_spanned,
-                        "row_span": cell.span_height,
-                        "column_span": cell.span_width,
-                    }
-                )
-
-        block.update(
-            {
-                "type": "table",
-                "row_count": len(shape.table.rows),
-                "column_count": len(shape.table.columns),
-                "cells": cells,
-            }
-        )
-        return block
+        return {**block, **extract_table(shape, block), "type": "table"}
 
     if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
         block.update(
@@ -76,14 +54,7 @@ def parse_shape(shape, shape_path: str) -> dict[str, Any]:
         return block
 
     if shape.has_chart:
-        block.update(
-            {
-                "type": "chart",
-                "requires_followup": True,
-                "reason": "图表数据及视觉关系尚未提取",
-            }
-        )
-        return block
+        return {**block, **extract_chart(shape, block), "type": "chart"}
 
     if shape.has_text_frame:
         paragraphs = [

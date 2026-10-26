@@ -1,0 +1,8 @@
+{
+  "document_id": "1e51d13b-dd4e-4a43-a215-2aa130a1ea2f",
+  "old_manifest": "storage/processed/1e51d13b-dd4e-4a43-a215-2aa130a1ea2f/8e65f672-57fb-4d56-9f8f-a08122800feb/embedding-manifest.json",
+  "old_snapshot": "03764363520a82e45d374867369fc06583f318790e655712e53ffa4e3022cb15",
+  "old_status": "ready",
+  "new_manifest": "storage/processed/1e51d13b-dd4e-4a43-a215-2aa130a1ea2f/8e65f672-57fb-4d56-9f8f-a08122800feb/embedding-hybrid-44ae71f9b98a4ffa891b5c2c2d50bde4.json",
+  "new_snapshot": "76a1b100d54567955ef93c3b4b1ee44e607197dfd0f534dc810c18b05751fb25"
+}

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from app.main import app
 from fastapi.testclient import TestClient
 
@@ -26,3 +28,12 @@ def test_health_check() -> None:
         "status": "ok",
         "service": "rag-enterprise-knowledge-base",
     }
+
+
+def test_frontend_renders_markdown_without_raw_html() -> None:
+    html = (
+        Path(__file__).resolve().parents[3] / "frontend" / "index.html"
+    ).read_text(encoding="utf-8")
+    assert "renderMarkdown(answerBox, data.answer)" in html
+    assert "renderMarkdown(text, source.text)" in html
+    assert "innerHTML" not in html

@@ -16,16 +16,28 @@ dependencies = [
     "alembic>=1.15,<2.0",
     "python-multipart>=0.0.20,<1.0",
     "python-pptx>=1.0.2,<2.0",
+    "PyMuPDF>=1.24,<2",
+    "httpx>=0.28,<1.0",
+    "minio>=7.2,<8.0",
+    "urllib3>=2.2,<3.0",
+    "sentence-transformers>=3,<6",
+    "numpy>=1.26,<3",
+    "pymilvus>=2.6.4,<2.7",
+    "transformers>=4.44,<5",
+    "python-dotenv>=1,<2",
+    "beautifulsoup4>=4.12,<5",
+    "langgraph==1.2.16",
+    "langchain-openai>=1.6.10,<2.0",
+    "langchain-experimental==0.4.2",
+    "langchain-community==0.4.2",
+    "unstructured[md]==0.18.32",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "httpx>=0.28,<1.0",
     "pytest>=8.3,<9.0",
     "pytest-asyncio>=0.25,<1.0",
     "ruff>=0.11,<1.0",
-    "minio>=7.2,<8.0",
-    "urllib3>=2.2,<3.0",
 ]
 
 [tool.setuptools]

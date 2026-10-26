@@ -49,3 +49,9 @@ desktop.ini
 
 # 本地 Docker 镜像备份
 /minio-image.tar
+
+# RAG 源文件
+/rag_sources.json
+/storage/processed/
+/storage/update-backups/
+/rag_before_worker.sql

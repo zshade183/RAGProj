@@ -1,0 +1,1202 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>企业知识库 · 文档问答</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: #18253b;
+      background: #f3f5f9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 20px;
+    }
+
+    .layout {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid #e2e7ef;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 6px 24px #172b4d06;
+    }
+
+    h1 { font-size: 24px; margin: 0 0 10px; }
+    h2 { font-size: 18px; margin: 0 0 18px; }
+
+    .muted {
+      color: #65748b;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 20px 0 8px;
+    }
+
+    input, textarea, button {
+      font: inherit;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid #cbd4e1;
+      border-radius: 9px;
+      padding: 12px;
+      color: inherit;
+      background: white;
+    }
+
+    input:focus, textarea:focus {
+      outline: 3px solid #dbeafe;
+      border-color: #2563eb;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 12px 20px;
+      cursor: pointer;
+      background: #2459d3;
+      color: white;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .examples {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+
+    .example {
+      background: #eef3ff;
+      color: #2854a8;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    .result {
+      margin-top: 26px;
+      padding-top: 22px;
+      border-top: 1px solid #e7ebf2;
+    }
+
+    .answer {
+      overflow-wrap: anywhere;
+      line-height: 1.9;
+      font-size: 15px;
+    }
+
+    .answer p,
+    .source-text p {
+      margin: 0 0 10px;
+    }
+
+    .answer ul,
+    .answer ol,
+    .source-text ul,
+    .source-text ol {
+      margin: 8px 0 12px;
+      padding-left: 24px;
+    }
+
+    .answer code,
+    .source-text code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: #eef2f7;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: .92em;
+    }
+
+    .answer pre,
+    .source-text pre {
+      padding: 12px;
+      overflow: auto;
+      border-radius: 8px;
+      background: #f4f6fa;
+      line-height: 1.6;
+    }
+
+    .answer a,
+    .source-text a {
+      color: #2459d3;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+
+    .answer table,
+    .source-text table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .95em;
+    }
+
+    .answer th,
+    .answer td,
+    .source-text th,
+    .source-text td {
+      border: 1px solid #d8e0eb;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .answer th,
+    .source-text th {
+      background: #f1f5fb;
+    }
+
+    .notice {
+      padding: 12px 14px;
+      border-radius: 9px;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-top: 16px;
+    }
+
+    .error {
+      background: #fff0f0;
+      color: #a92727;
+    }
+
+    .warning {
+      background: #fff7e6;
+      color: #805312;
+    }
+
+    .source {
+      border: 1px solid #e2e7ef;
+      border-radius: 10px;
+      margin: 12px 0;
+      padding: 14px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .source-text {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.8;
+      color: #45546a;
+      font-size: 14px;
+      margin-top: 12px;
+      max-height: 360px;
+      overflow: auto;
+    }
+
+    .metadata {
+      font-size: 13px;
+      color: #65748b;
+      margin-bottom: 16px;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 800px) {
+      body { padding: 16px 12px; }
+      .layout { grid-template-columns: 1fr; }
+      .panel { padding: 20px; }
+    }
+
+    select {
+  width: 100%;
+  border: 1px solid #cbd4e1;
+  border-radius: 9px;
+  padding: 12px;
+  color: inherit;
+  background: white;
+  font: inherit;
+}
+
+select:focus {
+  outline: 3px solid #dbeafe;
+  border-color: #2563eb;
+}
+
+select:disabled {
+  background: #f3f5f9;
+  color: #65748b;
+}
+
+input[type="file"] {
+  font-size: 13px;
+}
+
+#documentStatus,
+#uploadStatus {
+  overflow-wrap: anywhere;
+}
+
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <aside class="panel">
+      <h1>企业知识库</h1>
+      <p class="muted">
+        根据文档检索证据，生成回答并查看来源。
+      </p>
+
+      <label for="knowledgeBaseSelect">选择知识库</label>
+<select id="knowledgeBaseSelect">
+  <option value="">正在加载知识库……</option>
+</select>
+
+<label for="ragScope">检索范围</label>
+<select id="ragScope"><option value="document">当前文档</option><option value="knowledge">整个知识库（需混合索引）</option></select>
+<label for="ragMode">问答模式</label>
+<select id="ragMode"><option value="adaptive">自适应纠错</option><option value="agent">Agent 工作流</option><option value="classic">基础问答</option><option value="graph1">原版 graph1（工具调用）</option><option value="graph2">原版 graph2</option></select>
+<label><input id="allowWeb" type="checkbox">允许网络搜索（问题会发给搜索服务，需服务器启用）</label>
+<button id="newConversation" type="button" class="example">新会话</button>
+<p id="conversationNotice" class="muted"></p>
+<label for="documentSelect">选择文档</label>
+<select id="documentSelect">
+  <option value="">请先选择知识库</option>
+</select>
+
+<!-- 保留原有问答逻辑使用的字段，由选择器自动填写。 -->
+<input id="knowledgeBaseId" type="hidden">
+<input id="documentId" type="hidden">
+
+<p id="documentStatus" class="muted"></p>
+<button id="processDocument" type="button" class="example" disabled>处理 / 重新处理</button>
+<p id="processingStatus" class="muted" role="status"></p>
+
+<div class="actions">
+  <button id="refreshDocuments" type="button" class="example">
+    刷新文档
+  </button>
+  <button id="loadMoreDocuments" type="button" class="example" hidden>
+    加载更多
+  </button>
+</div>
+
+<form id="uploadForm">
+  <label for="uploadFile">上传到当前知识库</label>
+  <input
+    id="uploadFile"
+    type="file"
+    accept=".pdf,.docx,.pptx,.md,.txt,.html"
+    required
+  >
+
+  <div class="actions">
+    <button id="uploadButton" type="submit">上传文件</button>
+  </div>
+
+  <p id="uploadStatus" class="muted" role="status"></p>
+</form>
+
+<div id="catalogError" class="notice error" role="alert" hidden></div>
+
+      <p class="muted">
+        会话在当前服务进程内保留最近 6 轮。切换文档或索引版本后独立处理。
+      </p>
+
+      <div class="notice warning">
+        问题和检索片段将发送给服务器配置的大模型服务。
+        回答可能有误，请核对引用原文。
+      </div>
+    </aside>
+
+    <section class="panel">
+      <h2>向文档提问</h2>
+
+      <form id="questionForm">
+        <label for="question">你的问题</label>
+        <textarea
+          id="question"
+          maxlength="1000"
+          required
+          placeholder="例如：对称加密和非对称加密有什么区别？"
+        ></textarea>
+
+        <div class="examples">
+          <button type="button" class="example">
+            对称加密和非对称加密有什么区别？
+          </button>
+          <button type="button" class="example">
+            为什么实际通信会结合两种加密方式？
+          </button>
+        </div>
+
+        <div class="actions">
+          <button id="submitButton" type="submit">检索并回答</button>
+          <span id="progress" class="muted" role="status"></span>
+        </div>
+      </form>
+
+      <div id="error" class="notice error" role="alert" hidden></div>
+
+      <section id="result" class="result" hidden>
+        <h2>回答</h2>
+        <div id="metadata" class="metadata"></div>
+        <div id="answer" class="answer"></div>
+        <div id="citationNotice" class="notice warning" hidden></div>
+
+        <section id="sourcesSection" hidden>
+          <h2 style="margin-top: 26px;">引用来源</h2>
+          <div id="sources"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("questionForm");
+    const submitButton = document.getElementById("submitButton");
+    const progress = document.getElementById("progress");
+    const errorBox = document.getElementById("error");
+    const resultBox = document.getElementById("result");
+    const answerBox = document.getElementById("answer");
+    const metadataBox = document.getElementById("metadata");
+    const citationNotice = document.getElementById("citationNotice");
+    const sourcesBox = document.getElementById("sources");
+    const sourcesSection = document.getElementById("sourcesSection");
+
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    let busy = false;
+
+    document.querySelectorAll(".example").forEach(button => {
+      button.addEventListener("click", () => {
+        if (busy) return;
+        document.getElementById("question").value =
+          button.textContent.trim();
+        document.getElementById("question").focus();
+      });
+    });
+
+  function setBusy(value) {
+    busy = value;
+    updateControls();
+}
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.hidden = false;
+    }
+
+    function appendInlineMarkdown(parent, text) {
+      const pattern =
+        /(\*\*[^*\n]+\*\*|`[^`\n]+`|\[[^\]\n]+\]\(https?:\/\/[^\s)]+\))/gi;
+      let cursor = 0;
+      for (const match of text.matchAll(pattern)) {
+        if (match.index > cursor) {
+          parent.append(document.createTextNode(text.slice(cursor, match.index)));
+        }
+        const token = match[0];
+        if (token.startsWith("**")) {
+          const strong = document.createElement("strong");
+          strong.textContent = token.slice(2, -2);
+          parent.append(strong);
+        } else if (token.startsWith("`")) {
+          const code = document.createElement("code");
+          code.textContent = token.slice(1, -1);
+          parent.append(code);
+        } else {
+          const linkMatch = token.match(/^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/i);
+          if (!linkMatch) {
+            parent.append(document.createTextNode(token));
+          } else {
+            const link = document.createElement("a");
+            link.href = linkMatch[2];
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = linkMatch[1];
+            parent.append(link);
+          }
+        }
+        cursor = match.index + token.length;
+      }
+      if (cursor < text.length) {
+        parent.append(document.createTextNode(text.slice(cursor)));
+      }
+    }
+
+    function splitMarkdownRow(line) {
+      let value = line.trim();
+      if (value.startsWith("|")) value = value.slice(1);
+      if (value.endsWith("|") && !value.endsWith("\\|")) value = value.slice(0, -1);
+      const cells = [];
+      let current = "";
+      for (let i = 0; i < value.length; i += 1) {
+        if (value[i] === "|" && value[i - 1] !== "\\") {
+          cells.push(current.trim());
+          current = "";
+        } else {
+          current += value[i];
+        }
+      }
+      cells.push(current.trim());
+      return cells.map(cell => cell.replace(/\\\|/g, "|"));
+    }
+
+    function isTableSeparator(line) {
+      const cells = splitMarkdownRow(line);
+      return cells.length > 0 && cells.every(cell => /^:?-{3,}:?$/.test(cell));
+    }
+
+    function buildMarkdownTable(header, rows) {
+      const wrap = document.createElement("div");
+      wrap.className = "table-wrap";
+      const table = document.createElement("table");
+      const head = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      for (const value of header) {
+        const cell = document.createElement("th");
+        appendInlineMarkdown(cell, value);
+        headRow.append(cell);
+      }
+      head.append(headRow);
+      const body = document.createElement("tbody");
+      for (const row of rows) {
+        const tr = document.createElement("tr");
+        for (let index = 0; index < header.length; index += 1) {
+          const cell = document.createElement("td");
+          appendInlineMarkdown(cell, row[index] || "");
+          tr.append(cell);
+        }
+        body.append(tr);
+      }
+      table.append(head, body);
+      wrap.append(table);
+      return wrap;
+    }
+
+    function renderMarkdown(container, source) {
+      container.replaceChildren();
+      let list = null;
+      let listTag = "";
+      let codeBlock = null;
+      const flushList = () => {
+        list = null;
+        listTag = "";
+      };
+      const lines = String(source).split(/\r?\n/);
+      for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+        const line = lines[lineIndex];
+        if (line.trim().startsWith("```")) {
+          if (codeBlock) {
+            container.append(codeBlock);
+            codeBlock = null;
+          } else {
+            codeBlock = document.createElement("pre");
+            codeBlock.append(document.createElement("code"));
+          }
+          continue;
+        }
+        if (codeBlock) {
+          const code = codeBlock.firstElementChild;
+          code.textContent += (code.textContent ? "\n" : "") + line;
+          continue;
+        }
+        if (
+          line.includes("|") &&
+          lineIndex + 1 < lines.length &&
+          isTableSeparator(lines[lineIndex + 1])
+        ) {
+          flushList();
+          const header = splitMarkdownRow(line);
+          const rows = [];
+          lineIndex += 2;
+          while (
+            lineIndex < lines.length &&
+            lines[lineIndex].includes("|") &&
+            lines[lineIndex].trim()
+          ) {
+            rows.push(splitMarkdownRow(lines[lineIndex]));
+            lineIndex += 1;
+          }
+          lineIndex -= 1;
+          container.append(buildMarkdownTable(header, rows));
+          continue;
+        }
+        const listMatch = line.match(/^\s*([-*]|\d+\.)\s+(.+)$/);
+        const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+        if (listMatch) {
+          const tag = /^\d+\.$/.test(listMatch[1]) ? "ol" : "ul";
+          if (!list || listTag !== tag) {
+            list = document.createElement(tag);
+            listTag = tag;
+            container.append(list);
+          }
+          const item = document.createElement("li");
+          appendInlineMarkdown(item, listMatch[2]);
+          list.append(item);
+          continue;
+        }
+        flushList();
+        if (!line.trim()) continue;
+        if (headingMatch) {
+          const heading = document.createElement(`h${Math.min(headingMatch[1].length + 2, 6)}`);
+          appendInlineMarkdown(heading, headingMatch[2]);
+          container.append(heading);
+          continue;
+        }
+        const paragraph = document.createElement("p");
+        appendInlineMarkdown(paragraph, line.replace(/^\s*>\s?/, ""));
+        container.append(paragraph);
+      }
+      if (codeBlock) container.append(codeBlock);
+    }
+
+    let conversationId = crypto.randomUUID();
+    document.getElementById("newConversation").addEventListener("click", () => {
+      conversationId = crypto.randomUUID();
+      resultBox.hidden = true;
+      document.getElementById("conversationNotice").textContent = "已开始新会话";
+    });
+    document.getElementById("ragScope").addEventListener("change", () => updateControls());
+    function renderResult(data) {
+      if (
+        typeof data.answer !== "string" ||
+        !Array.isArray(data.sources) ||
+        !Array.isArray(data.citation_ids)
+      ) {
+        throw new Error("服务器返回的数据格式不正确。");
+      }
+
+      // 模型回答与文档文字均使用 textContent，
+      // 不将其作为 HTML 执行。
+      renderMarkdown(answerBox, data.answer);
+      metadataBox.textContent =
+        `召回 ${data.retrieved_count} 段 · ` +
+        `采用 ${data.accepted_count} 段证据 · ${data.retrieval_mode || "dense_legacy"}\n` +
+        (data.trace || []).map(item => item.node).join(" → ") +
+        (Array.isArray(data.query_plan) && data.query_plan.length > 1
+          ? `\n检索拆分：${data.query_plan.join("；")}`
+          : "");
+
+      citationNotice.hidden = true;
+
+      if (
+        data.status === "answered" &&
+        data.citation_check === "missing"
+      ) {
+        citationNotice.textContent =
+          "本次回答未提供来源编号；若为知识问答，请核对证据是否充分。";
+        citationNotice.hidden = false;
+      }
+
+      sourcesBox.replaceChildren();
+
+      const citedIds = new Set(data.citation_ids);
+      const visibleSources = data.sources.filter(
+        source => citedIds.has(source.source_id)
+      );
+
+      for (const source of visibleSources) {
+        const details = document.createElement("details");
+        details.className = "source";
+
+        const summary = document.createElement("summary");
+        summary.textContent =
+          `[${source.source_id}] ${source.filename} · ` +
+          (source.url ? "网络来源" : `第 ${source.page_number} 页`) +
+          (source.retrieval_kind === "adjacent" ? " · 邻页补充" : "");
+
+        const text = document.createElement("div");
+        text.className = "source-text";
+        renderMarkdown(text, source.text);
+
+        details.append(summary, text);
+        if (source.url && /^https?:\/\//i.test(source.url)) {
+          const link = document.createElement("a");
+          link.href = source.url; link.target = "_blank"; link.rel = "noopener noreferrer";
+          link.textContent = "查看网络原文"; details.append(link);
+        }
+        sourcesBox.append(details);
+      }
+
+      sourcesSection.hidden = visibleSources.length === 0;
+      resultBox.hidden = false;
+    }
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (busy) return;
+
+      errorBox.hidden = true;
+      resultBox.hidden = true;
+
+      const knowledgeBaseId =
+        document.getElementById("knowledgeBaseId").value.trim();
+      const documentId =
+        document.getElementById("documentId").value.trim();
+      const question =
+        document.getElementById("question").value.trim();
+
+      if (
+        !uuidPattern.test(knowledgeBaseId) ||
+        (document.getElementById("ragScope").value === "document" && !uuidPattern.test(documentId))
+      ) {
+        showError("请填写正确的知识库 ID 和文档 ID。");
+        return;
+      }
+
+      if (!question) {
+        showError("请输入问题。");
+        return;
+      }
+
+      setBusy(true);
+
+      const startedAt = Date.now();
+      const timer = window.setInterval(() => {
+        const seconds = Math.floor((Date.now() - startedAt) / 1000);
+        progress.textContent =
+          `正在处理，已等待 ${seconds} 秒。首次请求需要加载模型。`;
+      }, 1000);
+
+      progress.textContent = "正在检索并生成回答……";
+
+      try {
+        const response = await fetch(
+          `/api/v1/knowledge-bases/${knowledgeBaseId}` +
+          (document.getElementById("ragScope").value === "knowledge" ? "/ask" : `/documents/${documentId}/ask`),
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              question,
+              candidate_k: 20,
+              top_k: 5,
+              min_score: 0.3,
+              mode: document.getElementById("ragMode").value,
+              allow_web: document.getElementById("allowWeb").checked,
+              session_id: conversationId
+            })
+          }
+        );
+
+        let data;
+
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error(
+            `服务器没有返回有效 JSON，HTTP ${response.status}。`
+          );
+        }
+
+        if (!response.ok) {
+          const detail =
+            typeof data.detail === "string"
+              ? data.detail
+              : "请求参数不符合接口要求，请检查输入。";
+
+          throw new Error(`HTTP ${response.status}：${detail}`);
+        }
+
+        renderResult(data);
+        progress.textContent = "处理完成";
+      } catch (error) {
+        showError(
+          error instanceof TypeError
+            ? "无法连接后端，请检查服务是否正在运行。"
+            : error.message
+        );
+        progress.textContent = "本次请求失败";
+      } finally {
+        window.clearInterval(timer);
+        setBusy(false);
+      }
+    });
+    const knowledgeBaseSelect =
+  document.getElementById("knowledgeBaseSelect");
+const documentSelect =
+  document.getElementById("documentSelect");
+const knowledgeBaseIdInput =
+  document.getElementById("knowledgeBaseId");
+const documentIdInput =
+  document.getElementById("documentId");
+const documentStatus =
+  document.getElementById("documentStatus");
+const catalogError =
+  document.getElementById("catalogError");
+
+const refreshButton =
+  document.getElementById("refreshDocuments");
+const loadMoreButton =
+  document.getElementById("loadMoreDocuments");
+const uploadForm =
+  document.getElementById("uploadForm");
+const uploadFile =
+  document.getElementById("uploadFile");
+const uploadButton =
+  document.getElementById("uploadButton");
+const uploadStatus =
+  document.getElementById("uploadStatus");
+
+const PAGE_SIZE = 50;
+
+const processButton = document.getElementById("processDocument");
+const processingStatus = document.getElementById("processingStatus");
+let processingBusy = false;
+let activeTask = false;
+let processingTimer = null;
+let watchVersion = 0;
+let catalogBusy = false;
+let uploadBusy = false;
+let documentOffset = 0;
+let documentsById = new Map();
+
+function updateControls() {
+  const locked = busy || catalogBusy || uploadBusy || processingBusy;
+  const hasKnowledgeBase = Boolean(knowledgeBaseIdInput.value);
+  const hasDocument = Boolean(documentIdInput.value);
+
+  processButton.disabled = locked || !hasDocument || activeTask;
+  knowledgeBaseSelect.disabled = locked;
+  documentSelect.disabled = locked || !hasKnowledgeBase;
+
+  submitButton.disabled = locked || !hasKnowledgeBase ||
+    (document.getElementById("ragScope").value === "document" && !hasDocument);
+  for (const id of ["ragScope", "ragMode", "allowWeb", "newConversation"]) document.getElementById(id).disabled = locked;
+  document.getElementById("question").disabled = locked;
+
+  refreshButton.disabled = locked || !hasKnowledgeBase;
+  loadMoreButton.disabled = locked || !hasKnowledgeBase;
+
+  uploadFile.disabled = locked || !hasKnowledgeBase;
+  uploadButton.disabled = locked || !hasKnowledgeBase;
+
+  document.querySelectorAll(".examples .example").forEach(
+    button => { button.disabled = locked; }
+  );
+}
+
+function showCatalogError(message) {
+  catalogError.textContent = message;
+  catalogError.hidden = false;
+}
+
+function clearAnswer() {
+  resultBox.hidden = true;
+  errorBox.hidden = true;
+  progress.textContent = "";
+}
+
+async function requestJson(url, options = {}) {
+  const response = await fetch(url, options);
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error(
+      `接口没有返回有效 JSON，HTTP ${response.status}。`
+    );
+  }
+
+  if (!response.ok) {
+    const detail =
+      typeof data.detail === "string"
+        ? data.detail
+        : `请求失败，HTTP ${response.status}。`;
+
+    throw new Error(detail);
+  }
+
+  return data;
+}
+
+function readList(data) {
+  // 兼容直接返回数组，以及带 items 的分页返回结构。
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.items)) return data.items;
+
+  throw new Error(
+    "列表接口返回格式不匹配：预期数组或包含 items 数组的对象。"
+  );
+}
+
+function statusLabel(status) {
+  const labels = {
+    uploading: "上传中",
+    uploaded: "已上传",
+    parsing: "解析中",
+    parsed: "已解析",
+    indexing: "索引中",
+    ready: "可检索",
+    failed: "处理失败",
+    deleting: "删除中"
+  };
+
+  return labels[status] || status || "未知状态";
+}
+
+function selectDocument(documentId) {
+  const document = documentsById.get(documentId);
+
+  documentSelect.value = document ? document.id : "";
+  documentIdInput.value = document ? document.id : "";
+  watchProcessing();
+
+  clearAnswer();
+
+  if (!document) {
+    documentStatus.textContent = "当前知识库还没有可选择的文档。";
+    updateControls();
+    return;
+  }
+
+  const sizeMB = (
+    Number(document.size_bytes || 0) / 1024 / 1024
+  ).toFixed(2);
+
+  documentStatus.textContent =
+    `状态：${statusLabel(document.status)} · ${sizeMB} MB。` +
+    "能否问答还需后端检查已登记的向量快照。";
+
+  updateControls();
+}
+
+async function loadDocuments({
+  reset = true,
+  preferredId = ""
+} = {}) {
+  const kbId = knowledgeBaseIdInput.value;
+  if (!kbId) return;
+
+  catalogBusy = true;
+  catalogError.hidden = true;
+
+  const oldId = documentIdInput.value;
+
+  if (reset) {
+    documentOffset = 0;
+    documentsById = new Map();
+    documentSelect.replaceChildren(
+      new Option("正在加载文档……", "")
+    );
+    documentIdInput.value = "";
+    documentStatus.textContent = "";
+    loadMoreButton.hidden = true;
+    clearAnswer();
+  }
+
+  updateControls();
+
+  try {
+    const data = await requestJson(
+      `/api/v1/knowledge-bases/${encodeURIComponent(kbId)}` +
+      `/documents?offset=${documentOffset}&limit=${PAGE_SIZE}`
+    );
+
+    const rows = readList(data);
+
+    if (reset) {
+      documentSelect.replaceChildren(
+        new Option("请选择文档", "")
+      );
+    }
+
+    for (const document of rows) {
+      if (!document.id || !document.original_filename) {
+        throw new Error("文档列表缺少 id 或 original_filename。");
+      }
+
+      if (!documentsById.has(document.id)) {
+        documentSelect.add(
+          new Option(
+            `${document.original_filename} ` +
+            `（${statusLabel(document.status)}）`,
+            document.id
+          )
+        );
+      }
+
+      documentsById.set(document.id, document);
+    }
+
+    documentOffset += rows.length;
+    loadMoreButton.hidden = rows.length < PAGE_SIZE;
+
+    const chosenId =
+      [preferredId, oldId].find(id => documentsById.has(id)) ||
+      documentsById.keys().next().value ||
+      "";
+
+    selectDocument(chosenId);
+
+    if (documentsById.size === 0) {
+      documentSelect.replaceChildren(
+        new Option("暂无文档，请先上传", "")
+      );
+    }
+  } catch (error) {
+    if (reset) {
+      documentSelect.replaceChildren(
+        new Option("加载失败，请点击刷新文档", "")
+      );
+    }
+    showCatalogError(error.message);
+  } finally {
+    catalogBusy = false;
+    updateControls();
+  }
+}
+
+async function loadKnowledgeBases() {
+  catalogBusy = true;
+  catalogError.hidden = true;
+  updateControls();
+
+  try {
+    const all = [];
+    let offset = 0;
+
+    while (true) {
+      const data = await requestJson(
+        `/api/v1/knowledge-bases?offset=${offset}&limit=${PAGE_SIZE}`
+      );
+      const rows = readList(data);
+
+      // 防止接口未执行分页而一直返回相同的一页。
+      const existingIds = new Set(all.map(item => item.id));
+      if (rows.length && rows.every(item => existingIds.has(item.id))) {
+        throw new Error("知识库列表分页没有前进，请检查后端分页参数。");
+      }
+
+      all.push(...rows);
+      if (rows.length < PAGE_SIZE) break;
+      offset += rows.length;
+    }
+
+    knowledgeBaseSelect.replaceChildren(
+      new Option("请选择知识库", "")
+    );
+
+    for (const knowledgeBase of all) {
+      knowledgeBaseSelect.add(
+        new Option(knowledgeBase.name, knowledgeBase.id)
+      );
+    }
+
+    if (all.length === 0) {
+      knowledgeBaseIdInput.value = "";
+      documentStatus.textContent =
+        "尚无知识库，请先通过已有知识库接口创建。";
+      return;
+    }
+
+    const previousKnowledgeBase =
+      all.find(item =>
+        item.id === "536c7f30-06ec-4c86-9217-4d4b2e2b41ae"
+      ) || all[0];
+
+    knowledgeBaseSelect.value = previousKnowledgeBase.id;
+    knowledgeBaseIdInput.value = previousKnowledgeBase.id;
+  } catch (error) {
+    knowledgeBaseSelect.replaceChildren(
+      new Option("加载失败，请刷新页面重试", "")
+    );
+    showCatalogError(error.message);
+  } finally {
+    catalogBusy = false;
+    updateControls();
+  }
+
+  if (knowledgeBaseIdInput.value) {
+    await loadDocuments();
+  }
+}
+
+knowledgeBaseSelect.addEventListener("change", async () => {
+  knowledgeBaseIdInput.value = knowledgeBaseSelect.value;
+  documentIdInput.value = "";
+  documentsById = new Map();
+
+  documentSelect.replaceChildren(
+    new Option("请先选择知识库", "")
+  );
+  documentStatus.textContent = "";
+  uploadStatus.textContent = "";
+  watchProcessing();
+  loadMoreButton.hidden = true;
+  clearAnswer();
+
+  if (knowledgeBaseIdInput.value) {
+    await loadDocuments();
+  } else {
+    updateControls();
+  }
+});
+
+documentSelect.addEventListener("change", () => {
+  selectDocument(documentSelect.value);
+});
+
+refreshButton.addEventListener("click", () => {
+  loadDocuments();
+});
+
+loadMoreButton.addEventListener("click", () => {
+  loadDocuments({ reset: false });
+});
+
+uploadForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (busy || catalogBusy || uploadBusy) return;
+
+  const kbId = knowledgeBaseIdInput.value;
+  const file = uploadFile.files[0];
+
+  if (!kbId || !file) {
+    uploadStatus.textContent = "请先选择知识库和文件。";
+    return;
+  }
+
+  uploadBusy = true;
+  updateControls();
+  uploadStatus.textContent = "正在上传，请稍候……";
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const document = await requestJson(
+      `/api/v1/knowledge-bases/${encodeURIComponent(kbId)}/documents`,
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    if (!document.id) {
+      throw new Error("上传接口未返回文档 ID，请刷新列表核对结果。");
+    }
+
+    uploadFile.value = "";
+    uploadStatus.textContent =
+      "上传成功，已提交后台处理（如服务器关闭自动入队，可点击处理按钮）。";
+
+    await loadDocuments({
+      reset: true,
+      preferredId: document.id
+    });
+  } catch (error) {
+    uploadStatus.textContent =
+      `上传未确认成功：${error.message} ` +
+      "请先刷新文档列表核对，避免重复上传。";
+  } finally {
+    uploadBusy = false;
+    updateControls();
+  }
+});
+
+
+function watchProcessing() {
+  clearTimeout(processingTimer);
+  const version = ++watchVersion;
+  const kb = knowledgeBaseIdInput.value;
+  const doc = documentIdInput.value;
+  activeTask = false;
+  processingStatus.textContent = "";
+  if (!kb || !doc) return;
+  async function poll() {
+    if (version !== watchVersion) return;
+    try {
+      const task = await requestJson(`/api/v1/knowledge-bases/${kb}/documents/${doc}/processing`);
+      if (version !== watchVersion) return;
+      activeTask = ["queued", "running"].includes(task.status);
+      const stages = {download:"下载原文件",rendering:"渲染页面",ocr:"OCR识别",merging:"合并文字",parsed:"解析完成",embedding:"生成向量",indexing:"写入向量库",publish:"保存产物",ready:"可问答",queued:"等待worker"};
+      const statuses = {not_scheduled:"尚未创建任务",queued:"排队中",running:"处理中",succeeded:"处理成功",failed:"处理失败"};
+      processingStatus.textContent = `${statuses[task.status] || task.status} · ${stages[task.stage] || task.stage || ""} · 已尝试 ${task.attempts} 次` +
+        (task.error ? `。${task.error}` : "") +
+        (task.has_active_snapshot ? "。已有可问答版本。" : "");
+      processButton.textContent = task.status === "failed" ? "重试处理" : "处理 / 重新处理";
+      const item = documentsById.get(doc);
+      if (item) {
+        item.status = task.document_status;
+        const option = Array.from(documentSelect.options).find(o => o.value === doc);
+        if (option) option.textContent = `${item.original_filename}（${statusLabel(item.status)}）`;
+        documentStatus.textContent = `状态：${statusLabel(item.status)}。` +
+          (task.has_active_snapshot ? "已发布可问答快照。" : "旧手动登记的快照仍可兼容问答；新文档请等待处理完成。");
+      }
+      updateControls();
+    } catch (error) {
+      if (version !== watchVersion) return;
+      processingStatus.textContent = `状态查询失败：${error.message}，稍后重试。`;
+    }
+    if (version === watchVersion) processingTimer = setTimeout(poll, 3000);
+  }
+  poll();
+}
+
+processButton.addEventListener("click", async () => {
+  if (busy || catalogBusy || uploadBusy || processingBusy || activeTask) return;
+  const kb = knowledgeBaseIdInput.value;
+  const doc = documentIdInput.value;
+  if (!kb || !doc) return;
+  processingBusy = true;
+  updateControls();
+  try {
+    await requestJson(`/api/v1/knowledge-bases/${kb}/documents/${doc}/process`, {method:"POST"});
+    watchProcessing();
+  } catch (error) {
+    showCatalogError(error.message);
+  } finally {
+    processingBusy = false;
+    updateControls();
+  }
+});
+
+loadKnowledgeBases();
+  </script>
+</body>
+</html>

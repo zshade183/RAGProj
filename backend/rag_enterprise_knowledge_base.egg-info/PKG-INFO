@@ -9,8 +9,23 @@ Requires-Dist: pydantic-settings<3.0,>=2.8
 Requires-Dist: sqlalchemy[asyncio]<3.0,>=2.0
 Requires-Dist: asyncpg<1.0,>=0.30
 Requires-Dist: alembic<2.0,>=1.15
+Requires-Dist: python-multipart<1.0,>=0.0.20
+Requires-Dist: python-pptx<2.0,>=1.0.2
+Requires-Dist: PyMuPDF<2,>=1.24
+Requires-Dist: httpx<1.0,>=0.28
+Requires-Dist: minio<8.0,>=7.2
+Requires-Dist: urllib3<3.0,>=2.2
+Requires-Dist: sentence-transformers<6,>=3
+Requires-Dist: numpy<3,>=1.26
+Requires-Dist: pymilvus<2.7,>=2.6.4
+Requires-Dist: transformers<5,>=4.44
+Requires-Dist: python-dotenv<2,>=1
+Requires-Dist: beautifulsoup4<5,>=4.12
+Requires-Dist: langgraph==1.2.16
+Requires-Dist: langchain-experimental==0.4.2
+Requires-Dist: langchain-community==0.4.2
+Requires-Dist: unstructured[md]==0.18.32
 Provides-Extra: dev
-Requires-Dist: httpx<1.0,>=0.28; extra == "dev"
 Requires-Dist: pytest<9.0,>=8.3; extra == "dev"
 Requires-Dist: pytest-asyncio<1.0,>=0.25; extra == "dev"
 Requires-Dist: ruff<1.0,>=0.11; extra == "dev"

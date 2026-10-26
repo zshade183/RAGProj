@@ -1,0 +1,12 @@
+services:
+  unstructured:
+    build: ./deploy/unstructured
+    profiles: [ocr]
+    ports:
+      - "127.0.0.1:8001:8000"
+    environment:
+      MAX_UPLOAD_MB: "100"
+    volumes:
+      - unstructured-model-cache:/root/.cache
+volumes:
+  unstructured-model-cache:

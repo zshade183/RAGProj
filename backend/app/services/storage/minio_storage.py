@@ -85,6 +85,48 @@ class MinioStorage:
             object_name=object_name,
         )
 
+    def delete_prefix(
+        self,
+        *,
+        prefix: str,
+        bucket_name: str | None = None,
+    ) -> int:
+        """删除指定前缀下的全部对象，返回已提交删除请求的对象数。"""
+
+        if not prefix or prefix.startswith("/") or ".." in prefix.split("/"):
+            raise ValueError("对象前缀不安全")
+        target_bucket = bucket_name if bucket_name is not None else self.bucket_name
+        removed = 0
+        for item in self.client.list_objects(
+            bucket_name=target_bucket,
+            prefix=prefix,
+            recursive=True,
+        ):
+            self.client.remove_object(
+                bucket_name=target_bucket,
+                object_name=item.object_name,
+            )
+            removed += 1
+        return removed
+
+    def list_prefix(
+        self,
+        *,
+        prefix: str,
+        bucket_name: str | None = None,
+    ) -> list[str]:
+        if not prefix or prefix.startswith("/") or ".." in prefix.split("/"):
+            raise ValueError("对象前缀不安全")
+        target_bucket = bucket_name if bucket_name is not None else self.bucket_name
+        return [
+            item.object_name
+            for item in self.client.list_objects(
+                bucket_name=target_bucket,
+                prefix=prefix,
+                recursive=True,
+            )
+        ]
+
 
 @lru_cache
 def get_storage() -> MinioStorage:

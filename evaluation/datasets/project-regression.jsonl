@@ -1,0 +1,10 @@
+{"question":"课件中行移位如何处理四行？","expected_pages":[44],"expected_answer_terms":["循环左移"],"expect_status":"answered","required_trace_nodes":["retrieve","generate"],"reference":"第一行不变，第二至第四行分别循环左移 1、2、3 个字节。"}
+{"question":"列混淆由什么运算实现？","expected_pages":[45],"expected_answer_terms":["矩阵"],"expect_status":"answered","required_trace_nodes":["retrieve","generate"],"reference":"列混淆由矩阵乘法实现。"}
+{"question":"字节代替如何使用 S 盒？","expected_pages":[43],"expected_answer_terms":["16×16","S 盒"],"expect_status":"answered","reference":"使用 16×16 的 S 盒进行字节替换，示例为 95 替换为 2A，解密使用逆 S 盒。"}
+{"question":"字节代替下一步是什么？","expected_pages":[42],"expected_answer_terms":["行移位"],"expect_status":"answered","reference":"按照课件流程图，字节代替之后的下一步是行移位；现有低清流程图证据仍需人工复核。"}
+{"question":"EUV 光刻采用什么波长，为什么能支撑更先进制程？","expected_answer_terms":["13.5","分辨率"],"expect_status":"answered","required_trace_nodes":["retrieve","generate"],"reference":"EUV 使用 13.5nm 波长，相比 193nm DUV 能获得更高图案分辨率，从而支撑 7nm 及更先进制程。"}
+{"question":"EUV 光源功率为什么会影响量产产能？","expected_answer_terms":["产能","光"],"expect_status":"answered","reference":"EUV 光路损耗极大，只有约 1%-2% 光能到达光刻胶，功率不足会降低产能并增加图案缺陷。"}
+{"question":"硅通孔 TSV 如何实现三维芯片的垂直互连？","expected_answer_terms":["钻","填充","导电"],"expect_status":"answered","reference":"TSV 在硅片上制作通孔，以导电材料填充，并设置绝缘层，从而连接不同层芯片。"}
+{"question":"虚拟制造技术怎样缩短半导体工艺开发周期？","expected_answer_terms":["仿真","周期"],"expect_status":"answered","reference":"通过计算模拟和建模仿真设计、工艺与缺陷，在实物制造前验证并优化方案，减少物理实验和迭代时间。"}
+{"question":"请比较 EUV 光刻技术与硅通孔 TSV 技术，它们分别解决什么制造问题？请引用两个不同文件。","candidate_k":50,"top_k":10,"min_score":0.0,"mode":"classic","min_citation_files":2,"expected_answer_terms":["EUV","TSV"],"expect_status":"answered","reference":"EUV 解决先进节点图形曝光的分辨率问题；TSV 解决三维集成中的垂直互连、密度和延迟问题。两者分别属于光刻与封装互连环节。"}
+{"question":"字节代替下一步是什么？","mode":"adaptive","min_score":0.3,"expect_status":"insufficient_evidence","required_trace_nodes":["rewrite","insufficient"],"reference":"当流程图证据不可用时，系统应拒绝仅凭页面顺序或邻页标题推断，并说明证据不足。"}

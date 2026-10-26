@@ -1,0 +1,8 @@
+# Install in a separate Python 3.11 environment; do not install over rag-kb.
+ragas==0.4.3
+langchain==0.3.27
+langchain-community==0.3.31
+langchain-openai==0.3.35
+langchain-core==0.3.79
+langchain-text-splitters==0.3.11
+python-dotenv>=1,<2

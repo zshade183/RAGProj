@@ -1,0 +1,4 @@
+{"question": "课件中行移位如何处理四行？", "expected_pages": [44], "expected_terms": ["1", "2", "3"], "reference": "第一行保持不变，第二行循环左移1个字节，第三行循环左移2个字节，第四行循环左移3个字节。"}
+{"question": "列混淆由什么运算实现？", "expected_pages": [45], "expected_terms": ["矩阵"], "reference": "列混淆由矩阵乘法实现。"}
+{"question": "字节代替如何使用 S 盒？", "expected_pages": [43], "expected_terms": ["S"], "reference": "字节代替利用16×16的S盒，课件给出的例子是十六进制95代换为2A，解密时使用逆S盒。"}
+{"question": "字节代替下一步是什么？", "expected_pages": [42], "expected_terms": ["行移位"], "note": "第42页流程图是顺序依据；只找到第44页不能证明流程顺序，这一例可能仍需图解析才能通过。", "reference": "AES加密流程中，字节代替之后是行移位。"}

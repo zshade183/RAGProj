@@ -52,11 +52,37 @@ services:
 
     networks:
       - rag_network
+  milvus:
+    image: milvusdb/milvus:v2.6.4
+    container_name: rag-milvus
+    command: ["milvus", "run", "standalone"]
+    restart: unless-stopped
+    environment:
+      ETCD_USE_EMBED: "true"
+      ETCD_DATA_DIR: /var/lib/milvus/etcd
+      ETCD_CONFIG_PATH: /milvus/configs/embedEtcd.yaml
+      COMMON_STORAGETYPE: local
+      DEPLOY_MODE: STANDALONE
+    volumes:
+      - milvus_data:/var/lib/milvus
+      - ./deploy/milvus/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml:ro
+      - ./deploy/milvus/user.yaml:/milvus/configs/user.yaml:ro
+    ports:
+      - "127.0.0.1:19530:19530"
+      - "127.0.0.1:9091:9091"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
 volumes:
   postgres_data:
     name: rag-postgres-data
   minio_data:
     name: rag-minio-data
+  milvus_data:
+    name: rag-milvus-data  
 
 networks:
   rag_network:

@@ -171,4 +171,5 @@ async def delete_knowledge_base(
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-#eb02143a-6b9c-428f-a93d-389ad9ee7799
+
+# eb02143a-6b9c-428f-a93d-389ad9ee7799

@@ -6,11 +6,13 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    Index,
     String,
     Text,
     UniqueConstraint,
     Uuid,
     func,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -37,6 +39,13 @@ class Document(Base):
             "('uploading', 'uploaded', 'parsing', "
             "'parsed', 'indexing', 'ready', 'failed', 'deleting')",
             name="status_allowed",
+        ),
+        Index(
+            "uq_documents_knowledge_base_sha_live",
+            "knowledge_base_id",
+            "sha256",
+            unique=True,
+            postgresql_where=text("status <> 'deleting'"),
         ),
     )
 
@@ -94,6 +103,9 @@ class Document(Base):
         Text,
         nullable=True,
     )
+
+    active_manifest: Mapped[str | None] = mapped_column(Text, nullable=True)
+    active_snapshot_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

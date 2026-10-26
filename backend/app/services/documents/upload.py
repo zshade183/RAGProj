@@ -6,6 +6,7 @@ from typing import BinaryIO
 from uuid import UUID, uuid4
 
 from fastapi import HTTPException, UploadFile
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.concurrency import run_in_threadpool
@@ -144,6 +145,25 @@ async def upload_document(
             max_bytes,
         )
 
+        existing = await session.scalar(
+            select(Document)
+            .where(
+                Document.knowledge_base_id == knowledge_base_id,
+                Document.sha256 == sha256,
+                Document.status != "deleting",
+            )
+            .order_by(Document.created_at)
+            .limit(1)
+        )
+        if existing is not None:
+            if settings.processing_enabled and not existing.active_snapshot_id:
+                from app.tasks.queue import enqueue
+
+                await enqueue(session, existing)
+                await commit_or_report(session, existing.id)
+                await session.refresh(existing)
+            return DocumentRead.model_validate(existing)
+
         document = Document(
             id=document_id,
             knowledge_base_id=knowledge_base_id,
@@ -205,6 +225,11 @@ async def upload_document(
         document.status = "uploaded"
         document.error_message = None
 
+        if settings.processing_enabled:
+            from app.tasks.queue import enqueue
+
+            await enqueue(session, document)
+        # uploaded + queued are committed together: no successful response without a durable job.
         await commit_or_report(session, document_id)
         await session.refresh(document)
 
