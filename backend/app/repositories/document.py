@@ -5,13 +5,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.document import Document
 
+'''
+文档元数据查询仓库。
+'''
 
 class DocumentRepository:
     """文档元数据查询。"""
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
-
+    
+    '''
+    列出知识库下的所有文档。
+    '''
     async def list(
         self,
         *,
@@ -30,6 +36,9 @@ class DocumentRepository:
         result = await self.session.scalars(statement)
         return list(result)
 
+    '''
+    获取知识库下的文档。
+    '''
     async def get(
         self,
         *,

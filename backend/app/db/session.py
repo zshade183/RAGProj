@@ -6,11 +6,16 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+'''
+数据库会话管理模块。
+'''
 
 from app.core.config import get_settings
 
+# 数据库连接配置
 settings = get_settings()
 
+# 数据库连接 URL
 database_url = URL.create(
     drivername="postgresql+asyncpg",
     username=settings.postgres_user,
@@ -19,13 +24,13 @@ database_url = URL.create(
     port=settings.postgres_port,
     database=settings.postgres_db,
 )
-
+# 数据库引擎
 engine = create_async_engine(
     database_url,
     echo=settings.debug,
     pool_pre_ping=True,
 )
-
+# 数据库会话工厂
 async_session_factory = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
