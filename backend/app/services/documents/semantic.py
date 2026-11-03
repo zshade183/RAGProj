@@ -11,7 +11,9 @@ from app.services.documents.chunking import build_chunks
 
 SEMANTIC_VERSION = "heading-semantic-percentile-v2"
 
-
+'''
+解析 Markdown 文件，提取标题和段落。
+'''
 def markdown_page(path):
     from langchain_community.document_loaders import UnstructuredMarkdownLoader
 
@@ -21,7 +23,9 @@ def markdown_page(path):
         for d in docs
         if d.metadata.get("category") == "Title" and d.metadata.get("element_id")
     }
-
+    '''
+    递归获取标题的祖先标题路径。
+    '''
     def ancestry(item):
         values, visited = [], set()
         parent = item.metadata.get("parent_id")
@@ -31,7 +35,7 @@ def markdown_page(path):
             values.append(title.page_content.strip())
             parent = title.metadata.get("parent_id")
         return list(reversed(values))
-
+    # 构建文本块
     blocks = []
     for i, doc in enumerate(docs):
         text = doc.page_content.strip()
@@ -53,13 +57,17 @@ def markdown_page(path):
         )
     return {"page_number": 1, "blocks": blocks}
 
-
+'''
+语义分块适配器，用于将文本转换为语义向量。
+'''
 class BgeSemanticAdapter(Embeddings):
     """Bound long SemanticChunker windows before embedding, without silent truncation."""
 
     def __init__(self, embedder):
         self.embedder = embedder
-
+    '''
+    对文本列表进行语义分块。
+    '''
     def embed_documents(self, texts):
         output = []
         for text in texts:
@@ -71,7 +79,9 @@ class BgeSemanticAdapter(Embeddings):
                 raise ValueError("语义分块向量异常")
             output.append((vector / norm).tolist())
         return output
-
+    '''
+    对递归分块文本，直到每个分块的 token数不超过最大 token 数。
+    '''
     def _pieces(self, text):
         if self.embedder.token_count(text) <= self.embedder.max_tokens:
             return [text]
@@ -83,7 +93,9 @@ class BgeSemanticAdapter(Embeddings):
     def embed_query(self, text):
         return self.embed_documents([text])[0]
 
-
+'''
+语义分块函数，用于将文档转换为语义分块。
+'''
 def semantic_chunks(
     document,
     kb_id,
@@ -92,6 +104,9 @@ def semantic_chunks(
     semantic_embedder=None,
     openai_threshold: int | None = None,
 ):
+    '''
+    对语义分块进行编码。
+    '''
     split_embedding = semantic_embedder or BgeSemanticAdapter(embedder)
     splitter = SemanticChunker(
         split_embedding,

@@ -1,6 +1,12 @@
-"""Evidence is rebuilt only from an active, verified manifest, never from stale hit text."""
-
-
+'''
+扩展上下文函数，根据查询和快照扩展上下文
+:param selected: 选中的文档
+:param snapshots: 快照
+:param max_chars: 最大字符数
+:param max_sources: 最大来源数
+:param radius: 半径
+:return: 扩展后的上下文
+'''
 def expand_context(selected, snapshots, max_chars=14000, max_sources=18, radius=1):
     chunks, by_page = {}, {}
     for manifest, snapshot_id in snapshots:
@@ -14,7 +20,13 @@ def expand_context(selected, snapshots, max_chars=14000, max_sources=18, radius=
             chunks[key] = (c, snapshot_id)
             by_page.setdefault((key[0], c["page_number"]), []).append(c)
     output, seen, used = [], set(), 0
-
+    '''
+    添加函数，根据距离和类型添加上下文
+    :param chunk: 文本块
+    :param sid: 快照 ID
+    :param distance: 距离
+    :param kind: 类型
+    '''
     def add(chunk, sid, distance, kind):
         nonlocal used
         key = (chunk["document_id"], chunk["chunk_id"])

@@ -11,7 +11,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph, add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 
-
+# 创建聊天模型
 def make_chat_model(*, base_url: str, api_key: str, model: str) -> ChatOpenAI:
     return ChatOpenAI(
         model=model,
@@ -391,7 +391,7 @@ def build_reference_graph2(
                     "verify",
                     useful=False,
                     citations=result["citation_ids"],
-                ),
+                ), 
             }
         if allow_web and not state.get("web_used"):
             return {"decision": "web_search", **_event(state, "verify", web_fallback=True)}

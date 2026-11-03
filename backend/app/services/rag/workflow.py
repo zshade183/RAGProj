@@ -4,7 +4,7 @@ from typing import TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
-
+# 定义状态
 class State(TypedDict, total=False):
     question: str
     query: str
@@ -24,7 +24,7 @@ class State(TypedDict, total=False):
     accepted_count: int
     queries: list
 
-
+# 定义工作流
 def build_workflow(
     retrieve, expand, answering, judge, web, checkpointer=None, max_rewrites=2, max_generations=3
 ):

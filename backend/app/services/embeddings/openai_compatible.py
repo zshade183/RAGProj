@@ -6,7 +6,9 @@ import httpx
 import numpy as np
 from langchain_core.embeddings import Embeddings
 
-
+'''
+OpenAI 兼容的向量表示服务。
+'''
 class OpenAICompatibleEmbeddings(Embeddings):
     def __init__(
         self,

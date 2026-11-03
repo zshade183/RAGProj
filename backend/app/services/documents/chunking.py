@@ -26,9 +26,11 @@ def split_ranges(
     if not 0 <= overlap < chunk_size // 2:
         raise ValueError("overlap 必须非负且小于 chunk_size 的一半。")
 
+    # 初始化分块区间列表
     ranges = []
+    # 初始化分块起始位置
     start = 0
-
+    # 循环遍历文本，直到处理完所有字符
     while start < len(text):
         limit = min(start + chunk_size, len(text))
         end = limit
@@ -83,12 +85,12 @@ def build_chunks(
     if [page["page_number"] for page in pages] != list(range(1, len(pages) + 1)):
         raise ValueError("页码必须连续且不能重复。")
 
-    # 即使没有有效文字，也先校验参数。
+    # 校验参数
     split_ranges("", chunk_size, overlap)
 
     source_hash = document["source_sha256"]
     chunks = []
-
+    # 遍历每一页
     for page in pages:
         page_number = page["page_number"]
         parts = []
@@ -123,6 +125,7 @@ def build_chunks(
                 }
             )
 
+        # 合并所有文本块
         page_text = "".join(parts)
 
         for start, end in split_ranges(page_text, chunk_size, overlap):
@@ -138,16 +141,16 @@ def build_chunks(
 
             text = page_text[start:end]
             content_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
-
+            # 提取来源块信息
             source_blocks = []
-
+            # 遍历所有块，提取与当前文本块重叠的块
             for span in spans:
                 intersect_start = max(start, span["start"])
                 intersect_end = min(end, span["end"])
 
                 if intersect_start >= intersect_end:
                     continue
-
+                
                 source_blocks.append(
                     {
                         "block_id": span["block_id"],
@@ -163,7 +166,7 @@ def build_chunks(
                         "structure": span.get("structure", {}),
                     }
                 )
-
+            # 生成文本块的唯一标识符
             identity = json.dumps(
                 {
                     "version": CHUNKER_VERSION,
@@ -180,7 +183,7 @@ def build_chunks(
                 ensure_ascii=False,
                 sort_keys=True,
             )
-
+            
             chunks.append(
                 {
                     "chunk_id": str(uuid5(document_id, identity)),

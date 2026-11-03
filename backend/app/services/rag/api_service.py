@@ -20,7 +20,7 @@ _runtime_lock = Lock()
 class RagBusyError(Exception):
     pass
 
-
+# 加载快照
 def load_snapshot(
     document_id: UUID, active_manifest: str | None = None, expected_snapshot: str | None = None
 ) -> tuple[dict, str]:
@@ -103,13 +103,13 @@ class RagRuntime:
 
     def close(self) -> None:
         self.answering.close()
-
+    # 问答
     def ask(
         self,
         manifest,
         snapshot_id,
         question,
-        candidate_k,
+        candidate_k,# 候选文档数量
         top_k,
         min_score,
         mode="adaptive",
@@ -138,39 +138,59 @@ class RagRuntime:
             if is_hybrid
             else MilvusStore(uri=settings.milvus_uri)
         )
+        # 加载快照
         scopes = [(m["knowledge_base_id"], m["document_id"], sid) for m, sid in snapshots]
+        # 定义判断器
         judge = Judge(self.answering)
         try:
+            # 确保索引存在
             store.ensure_collection()
             for (m, sid), scope in zip(snapshots, scopes, strict=True):
                 if store.count_snapshot(*scope) != m["chunk_count"]:
                     raise RuntimeError("当前快照索引不完整")
-
+            # 定义检索函数
+            '''
+            检索函数，根据查询检索候选文档
+            :param query: 查询
+            :return: 候选文档组，保留的文档数量，子查询组
+            '''
             def retrieve(query):
+                # 检索函数
                 queries = [query]
+                # 分解查询
                 if looks_compound(query):
                     try:
                         queries = judge.decompose(query)
                     except RuntimeError:
                         queries = [query]
                 groups = []
+                # 检索每个子查询的候选文档
                 for subquery in queries:
                     vector = self.embedder.encode_query(subquery).tolist()
-                    if is_hybrid:
+                    # 检索候选文档
+                    if is_hybrid:# 混合索引
                         hits = store.hybrid_search(subquery, vector, scopes, candidate_k)
-                    else:
+                    else:# 普通索引
                         hits = store.search(vector, *scopes[0], limit=candidate_k)
                     ranked = self.reranker.rank(question=subquery, hits=hits, batch_size=2)
                     groups.append(
                         [{**hit, "matched_query": subquery} for hit in ranked]
                     )
+                # 合并候选文档
                 selected, count = merge_query_hits(groups, top_k, min_score)
                 return selected, count, queries
 
+            # 定义扩展函数
+            '''
+            扩展函数，根据候选文档扩展上下文
+            :param hits: 候选文档组
+            :return: 扩展后的文档组
+            '''
             def expand(hits):
                 return expand_context(hits, snapshots)
 
             if mode == "classic":
+                # 经典模式
                 hits, count, queries = retrieve(question)
                 evidence = expand(hits)
                 result = self.answering.answer(question, evidence, subquestions=queries)
@@ -183,6 +203,11 @@ class RagRuntime:
                     "queries": queries,
                 }
             else:
+                '''
+                自适应模式
+                :param question: 查询
+                :return: 状态
+                '''
                 # Same session ID cannot share history across KBs, snapshots, modes or web permissions.
                 permission = bool(allow_web and settings.rag_web_enabled)
                 scope_key = hashlib.sha256(
@@ -197,7 +222,7 @@ class RagRuntime:
                         build_reference_graph2,
                         make_chat_model,
                     )
-
+                    # 初始化参考模型
                     if not hasattr(self, "reference_llm"):
                         self.reference_llm = make_chat_model(**self.llm_config)
                     if mode == "graph1":
@@ -339,7 +364,20 @@ class RagRuntime:
         finally:
             store.close()
 
-
+'''
+使用运行时执行 RAG 请求
+:param manifest: 知识库清单
+:param snapshot_id: 快照 ID
+:param question: 查询
+:param candidate_k: 候选文档数量
+:param top_k: 保留的文档数量
+:param min_score: 最小分数
+:param mode: 模式
+:param allow_web: 是否允许使用 Web 节点
+:param session_id: 会话 ID
+:param snapshots: 快照
+:return: 状态
+'''
 def ask_with_runtime(
     manifest: dict,
     snapshot_id: str,

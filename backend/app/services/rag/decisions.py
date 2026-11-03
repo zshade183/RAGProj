@@ -6,27 +6,37 @@ from urllib.parse import urlparse
 import httpx
 from pydantic import BaseModel, ConfigDict, Field
 
-
+'''
+决策模型
+'''
 class Decision(BaseModel):
     model_config = ConfigDict(extra="forbid")
     route: Literal["retrieve", "web", "direct"]
 
-
+'''
+评估模型
+'''
 class Grade(BaseModel):
     model_config = ConfigDict(extra="forbid")
     binary_score: Literal["yes", "no"]
 
-
+'''
+查询模型
+'''
 class Query(BaseModel):
     model_config = ConfigDict(extra="forbid")
     query: str = Field(min_length=1, max_length=1000)
 
-
+'''
+查询批次模型
+'''
 class Queries(BaseModel):
     model_config = ConfigDict(extra="forbid")
     queries: list[str] = Field(min_length=1, max_length=6)
 
-
+'''
+评估器
+'''
 class Judge:
     def __init__(self, answering):
         self.answering = answering
@@ -44,7 +54,13 @@ class Judge:
             return schema.model_validate_json(content)
         except ValueError as exc:
             raise RuntimeError("评估器未返回合法结构化结果，本次不放行答案") from exc
-
+    '''
+    选择路线函数
+    :param question: 问题
+    :param allow_web: 是否允许联网
+    :param mode: 模式
+    :return: 路线
+    '''
     def route(self, question, allow_web, mode):
         return self.structured(
             "选择路线。纯寒暄/致谢选 direct；文档知识问答优先 retrieve；"
@@ -53,6 +69,13 @@ class Judge:
             Decision,
         ).route
 
+    '''
+    改写问题函数
+    :param question: 原问题
+    :param query: 原查询
+    :param history: 历史记录
+    :return: 改写后的问题
+    '''
     def rewrite(self, question, query, history=None):
         return self.structured(
             "将问题改写为独立、便于检索的中文问题，保留原意、实体和限制。"
@@ -60,7 +83,11 @@ class Judge:
             {"original_question": question, "previous_query": query, "history": history or []},
             Query,
         ).query
-
+    '''
+    拆分问题函数
+    :param question: 问题
+    :return: 子问题列表
+    '''
     def decompose(self, question):
         result = self.structured(
             "把复合问题拆成 1 到 6 个可独立检索的子问题。"
@@ -77,7 +104,12 @@ class Judge:
         if not values:
             raise RuntimeError("问题拆分结果为空")
         return values[:6]
-
+    '''
+    评估相关性函数
+    :param question: 问题
+    :param text: 资料
+    :return: 相关性
+    '''
     def relevant(self, question, text):
         return (
             self.structured(
@@ -87,7 +119,12 @@ class Judge:
             ).binary_score
             == "yes"
         )
-
+    '''
+    评估依据函数
+    :param question: 问题
+    :param result: 回答结果
+    :return: 依据
+    '''
     def grounded(self, question, result):
         return (
             self.structured(
@@ -98,7 +135,13 @@ class Judge:
             ).binary_score
             == "yes"
         )
-
+    '''
+    评估有用性函数
+    :param question: 问题
+    :param answer: 回答
+    :param queries: 子问题列表
+    :return: 有用性
+    '''
     def useful(self, question, answer, queries=None):
         return (
             self.structured(
@@ -111,7 +154,9 @@ class Judge:
             == "yes"
         )
 
-
+'''
+网络搜索器
+'''
 class WebSearch:
     def __init__(self, api_key):
         self.api_key = api_key

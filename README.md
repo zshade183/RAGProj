@@ -68,6 +68,14 @@ python -m scripts.gc_retrieval --knowledge-base-id <KB_ID> --apply
 
 `--reschedule` 会只重置现有 queued 任务的可领取时间，不改文档或历史快照。
 
+## 指标与评测
+
+统一口径见 [项目指标说明与评测补全计划](docs/METRICS.md)，包含指标定义、已有结果、适用范围及待补评测。
+
+下一轮执行方案见 [RAG 实验方案](docs/EXPERIMENT_PLAN.md)，说明数据划分、模块对照、真实 API 比较、评分规则、性能成本测试及实施顺序；目前为设计，尚未执行。
+
+已有 [50 题 RAGAS 评测](docs/RAGAS_EVALUATION_50_20261029.md)：在 100 篇文档、634 个文本块上，Faithfulness、Context Recall、Response Relevancy 均值分别为 0.9064、0.9000、0.7823。该结果仅覆盖 BGE-small 稠密 Top-5 与受约束生成，不代表当前默认混合检索和自适应链路，也不等同于人工回答准确率。
+
 ## 测试
 
 ```powershell

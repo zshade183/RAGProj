@@ -12,7 +12,9 @@ from sentence_transformers import SentenceTransformer
 
 from app.services.embeddings.constants import MODEL_NAME, QUERY_INSTRUCTION
 
-
+'''
+BGE 模型的向量表示服务。
+'''
 class BgeEmbedding:
     def __init__(
         self,
@@ -51,6 +53,9 @@ class BgeEmbedding:
         if self.dimension != 1024:
             raise RuntimeError(f"模型维度不符合预期：{self.dimension}")
 
+    '''
+    计算文本的 token 数。
+    '''
     def token_count(self, text: str) -> int:
         encoded = self.model.tokenizer(
             text,
@@ -59,10 +64,13 @@ class BgeEmbedding:
         )
         return len(encoded["input_ids"])
 
+    '''
+    对文本列表进行编码。
+    '''
     def encode_documents(
         self,
-        texts: list[str],
-        batch_size: int = 4,
+        texts: list[str],# 待向量化的文本列表
+        batch_size: int = 4,# 批次大小
     ) -> np.ndarray:
         if not texts or any(not text.strip() for text in texts):
             raise ValueError("待向量化的文本不能为空。")
@@ -77,7 +85,10 @@ class BgeEmbedding:
                     f"第 {index} 个文本包含 {count} tokens，"
                     f"超过上限 {self.max_tokens}，需要重新切块。"
                 )
-
+        
+        '''
+        对文本列表进行编码。
+        '''
         vectors = self.model.encode(
             texts,
             prompt="",
@@ -102,7 +113,9 @@ class BgeEmbedding:
             raise RuntimeError("向量没有正确归一化。")
 
         return vectors
-
+    '''
+    对查询进行编码。
+    '''
     def encode_query(self, question: str) -> np.ndarray:
         question = question.strip()
         if not question:

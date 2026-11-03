@@ -27,7 +27,9 @@ class MinioStorage:
                 retries=False,
             ),
         )
-
+    '''
+    确保桶存在。
+    '''
     def ensure_bucket(self) -> None:
         """桶不存在时创建；已存在时保持原样。"""
 
@@ -40,7 +42,9 @@ class MinioStorage:
             # 另一个初始化进程可能刚好创建了同一个桶。
             if exc.code != "BucketAlreadyOwnedByYou":
                 raise
-
+    '''
+    上传本地文件。
+    '''
     def upload_file(
         self,
         *,
@@ -56,7 +60,9 @@ class MinioStorage:
             file_path=str(file_path),
             content_type=content_type,
         )
-
+    '''
+    从 MinIO 下载文件。
+    '''
     def download_file(
         self,
         *,

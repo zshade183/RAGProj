@@ -15,8 +15,8 @@ class RagQuestion(BaseModel):
     candidate_k: int = Field(default=20, ge=1, le=50)
     top_k: int = Field(default=5, ge=1, le=10)
     mode: Literal["classic", "agent", "adaptive", "graph1", "graph2"] = "adaptive"
-    allow_web: bool = False
-    session_id: UUID | None = None
+    allow_web: bool = False 
+    session_id: UUID | None = None 
     min_score: float = Field(default=0.3, ge=0, le=1)
 
 
@@ -37,15 +37,16 @@ class RagSource(BaseModel):
 class RagResponse(BaseModel):
     knowledge_base_id: UUID
     document_id: UUID | None
-    snapshot_id: str
+    snapshot_id: str # 知识库快照 ID
     status: Literal["answered", "insufficient_evidence", "direct"]
-    answer: str
-    citation_ids: list[str]
-    citation_check: str
-    sources: list[RagSource]
-    retrieved_count: int
-    accepted_count: int
-    trace: list[dict] = Field(default_factory=list)
-    retrieval_mode: str = "dense_legacy"
-    session_id: UUID | None = None
-    query_plan: list[str] = Field(default_factory=list)
+    answer: str # 回答内容
+    citation_ids: list[str] # 引用的文档 ID 列表
+    citation_check: str # 引用检查结果
+    sources: list[RagSource] # 源文档列表
+    retrieved_count: int # 检索到的文档数量
+    accepted_count: int # 被接受的文档数量
+    trace: list[dict] = Field(default_factory=list) # 检索轨迹
+    retrieval_mode: str = "dense_legacy" # 检索模式
+    session_id: UUID | None = None # 会话 ID
+    query_plan: list[str] = Field(default_factory=list) # 查询计划
+   

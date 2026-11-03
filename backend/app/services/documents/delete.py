@@ -15,13 +15,15 @@ from app.services.retrieval.hybrid_store import HybridStore
 from app.services.retrieval.milvus_store import MilvusStore
 from app.services.storage.minio_storage import get_storage
 
+# 删除文档
 logger = logging.getLogger(__name__)
 
-
+# 删除文档向量
 def _delete_vectors(document_id: UUID) -> int:
     """Purge both collection generations; reads are already blocked by the deleting state."""
 
     deleted = 0
+    # 删除文档向量
     for store_type in (HybridStore, MilvusStore):
         store = store_type()
         try:
@@ -30,7 +32,7 @@ def _delete_vectors(document_id: UUID) -> int:
             store.close()
     return deleted
 
-
+# 删除文档对象
 def _delete_objects(document: Document) -> int:
     storage = get_storage()
     try:
@@ -46,7 +48,7 @@ def _delete_objects(document: Document) -> int:
         prefix=f"artifacts/{document.id}/",
     )
 
-
+# 删除文档处理产物
 def _delete_attempt_artifacts(document_id: UUID) -> None:
     from app.tasks.pipeline import ROOT
 
@@ -57,7 +59,7 @@ def _delete_attempt_artifacts(document_id: UUID) -> None:
     if target.exists():
         shutil.rmtree(target)
 
-
+# 删除文档
 async def delete_document(
     *,
     knowledge_base_id: UUID,
@@ -77,6 +79,7 @@ async def delete_document(
     )
 
     try:
+        # 获取文档
         document = await session.scalar(statement)
 
         if document is None:
@@ -87,6 +90,7 @@ async def delete_document(
 
         from app.models import ProcessingJob
 
+        # 获取文档处理任务
         job = await session.scalar(
             select(ProcessingJob).where(ProcessingJob.document_id == document_id).with_for_update()
         )
@@ -112,8 +116,9 @@ async def delete_document(
                 status_code=409,
                 detail="文档状态已变化，请重新查询",
             )
-
+        # 删除文档对象
         deleted_objects = await run_in_threadpool(_delete_objects, document)
+        # 删除文档向量
         deleted_vectors = await run_in_threadpool(_delete_vectors, document.id)
         logger.info(
             "Document cleanup: id=%s objects=%s vectors=%s",
@@ -121,7 +126,7 @@ async def delete_document(
             deleted_objects,
             deleted_vectors,
         )
-
+        # 删除文档处理产物
         job = await session.scalar(
             select(ProcessingJob).where(ProcessingJob.document_id == document_id).with_for_update()
         )

@@ -12,6 +12,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     from dotenv import dotenv_values
+    from langchain_core.embeddings import Embeddings
     from langchain_openai import ChatOpenAI, OpenAIEmbeddings
     from ragas import EvaluationDataset, evaluate
     from ragas.embeddings import LangchainEmbeddingsWrapper
@@ -64,7 +65,34 @@ def main():
                 api_key=config["EVAL_EMBEDDING_API_KEY"],
             )
         )
-        metrics.append(ResponseRelevancy())
+        # Some OpenAI-compatible chat providers only support n=1. A strictness
+        # of one keeps the metric valid while avoiding unsupported multi-output
+        # generation requests.
+        metrics.append(ResponseRelevancy(strictness=1))
+    elif config.get("EVAL_LOCAL_EMBEDDING_MODEL"):
+        from sentence_transformers import SentenceTransformer
+
+        class LocalSentenceEmbeddings(Embeddings):
+            def __init__(self, model_name: str):
+                # RAGAS inspects ``model`` for telemetry and expects a string.
+                self.model = model_name
+                self.backend = SentenceTransformer(
+                    model_name,
+                    device=config.get("EVAL_LOCAL_EMBEDDING_DEVICE", "cpu"),
+                    cache_folder=str(root / "storage" / "models"),
+                    local_files_only=True,
+                )
+
+            def embed_documents(self, texts: list[str]) -> list[list[float]]:
+                return self.backend.encode(texts, normalize_embeddings=True).tolist()
+
+            def embed_query(self, text: str) -> list[float]:
+                return self.embed_documents([text])[0]
+
+        embeddings = LangchainEmbeddingsWrapper(
+            LocalSentenceEmbeddings(config["EVAL_LOCAL_EMBEDDING_MODEL"])
+        )
+        metrics.append(ResponseRelevancy(strictness=1))
     result = evaluate(
         EvaluationDataset.from_list(rows),
         metrics=metrics,

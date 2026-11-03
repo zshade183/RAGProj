@@ -7,15 +7,37 @@ from typing import Any
 
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 
-
+# 清理文本
+'''
+清理文本，移除换行符、制表符等特殊字符。
+参数：
+value：要清理的文本值。
+返回：
+清理后的文本字符串。
+'''
 def clean_text(value: Any) -> str:
     return str(value or "").replace("\r\n", "\n").replace("\v", "\n").strip()
 
 
+# 转义 Markdown 单元格
+'''
+转义 Markdown 单元格，处理管道符和换行符。
+参数：
+value：要转义的文本值。
+返回：
+转义后的文本字符串。
+'''
 def escape_markdown_cell(value: str) -> str:
     return clean_text(value).replace("|", "\\|").replace("\n", "<br>")
 
-
+# 转换为 Markdown 表格
+'''
+将表格数据转换为 Markdown 表格格式。
+参数：
+rows：包含表格数据的列表，每个元素是一个列表，代表一行数据。
+返回：
+Markdown 表格字符串。
+'''
 def rows_to_markdown(rows: list[list[str]]) -> str:
     rows = [row for row in rows if any(cell.strip() for cell in row)]
     if not rows:
@@ -30,7 +52,14 @@ def rows_to_markdown(rows: list[list[str]]) -> str:
     ]
     return "\n".join([header, divider, *body])
 
-
+# 转换为 HTML 表格
+'''
+将表格数据转换为 HTML 表格格式。
+参数：
+rows：包含表格数据的列表，每个元素是一个列表，代表一行数据。
+返回：
+HTML 表格字符串。
+'''
 def rows_to_html(rows: list[list[str]]) -> str:
     cells = []
     for index, row in enumerate(rows):
@@ -40,7 +69,15 @@ def rows_to_html(rows: list[list[str]]) -> str:
         )
     return "<table>" + "".join(cells) + "</table>"
 
-
+# 提取表格
+'''
+从 PPTX 表格形状中提取表格数据。
+参数：
+shape：要提取的表格形状。
+base：包含基础信息的字典。
+返回：
+包含表格数据的字典。
+'''
 def extract_table(shape, base: dict) -> dict:
     rows, cells = [], []
     for row_index, row in enumerate(shape.table.rows):
@@ -80,7 +117,15 @@ def extract_table(shape, base: dict) -> dict:
         "text_as_html": rows_to_html(rows),
     }
 
-
+# 提取图表
+'''
+从 PPTX 图表形状中提取图表数据。
+参数：
+shape：要提取的图表形状。
+base：包含基础信息的字典。
+返回：
+包含图表数据的字典。
+'''
 def extract_chart(shape, base: dict) -> dict:
     chart = shape.chart
     title = ""
@@ -122,14 +167,28 @@ def extract_chart(shape, base: dict) -> dict:
         },
     }
 
-
+# 遍历形状
+'''
+递归遍历形状列表，包括子形状。
+参数：
+shapes：要遍历的形状列表。
+返回：
+一个生成器，每次 yield 一个形状。
+'''
 def walk_shapes(shapes):
     for shape in shapes:
         yield shape
         if shape.shape_type == MSO_SHAPE_TYPE.GROUP:
             yield from walk_shapes(shape.shapes)
 
-
+# 提取连接器关系
+'''
+从 PPTX 连接器形状中提取连接器关系数据。
+参数：
+shapes：要遍历的形状列表。
+返回：
+包含连接器关系数据的字典列表。
+'''
 def _shape_label(shape) -> str:
     if getattr(shape, "has_text_frame", False):
         value = clean_text(shape.text_frame.text)
@@ -137,7 +196,14 @@ def _shape_label(shape) -> str:
             return value
     return clean_text(getattr(shape, "name", ""))
 
-
+# 提取连接器关系
+'''
+从 PPTX 连接器形状中提取连接器关系数据。
+参数：
+shapes：要遍历的形状列表。
+返回：
+包含连接器关系数据的字典列表。
+'''
 def extract_connector_relations(shapes) -> list[dict]:
     all_shapes = list(walk_shapes(shapes))
     by_id = {str(shape.shape_id): shape for shape in all_shapes}

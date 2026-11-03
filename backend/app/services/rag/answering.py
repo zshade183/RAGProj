@@ -122,8 +122,9 @@ class AnsweringService:
         )
 
         content = self.complete(SYSTEM_PROMPT, user_content, max_tokens=4096)
-
+        # 提取来源编号
         citation_ids = list(dict.fromkeys(re.findall(r"\[(S\d+)\]", content)))
+        # 检查来源编号是否有效
         allowed_ids = {source["source_id"] for source in sources}
         invalid_ids = set(citation_ids) - allowed_ids
 
@@ -137,7 +138,13 @@ class AnsweringService:
             "citation_check": ("valid_ids" if citation_ids else "missing"),
             "usage": {},
         }
-
+        '''
+        完成函数，根据系统提示和用户输入生成回答
+        :param system: 系统提示
+        :param user: 用户输入
+        :param max_tokens: 最大令牌数
+        :return: 回答
+        '''
     def complete(self, system: str, user: str, max_tokens: int = 1200) -> str:
         payload = {
             "model": self.model,

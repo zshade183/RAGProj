@@ -31,8 +31,13 @@ class KnowledgeBaseRead(BaseModel):
 class KnowledgeBaseUpdate(BaseModel):
     """只修改请求中明确提供的字段。"""
 
+    '''
+    更新知识库时，用户需要提交的数据。
+    '''
     model_config = ConfigDict(
+        # 自动移除首尾空格
         str_strip_whitespace=True,
+        # 禁止额外字段
         extra="forbid",
     )
 

@@ -6,7 +6,7 @@ COMPOUND_MARKERS = re.compile(
     r"(分别|比较|对比|各自|以及|同时|另外|此外|并说明|再说明|哪些.*哪些)"
 )
 
-
+# 判断查询是否为复合查询
 def looks_compound(question: str) -> bool:
     text = question.strip()
     if COMPOUND_MARKERS.search(text):
@@ -15,7 +15,13 @@ def looks_compound(question: str) -> bool:
         "；" in text and len(text) >= 16
     )
 
-
+'''
+合并候选文档，根据rerank_score排序，保留top_k个文档
+:param hit_groups: 候选文档组
+:param top_k: 保留的文档数量
+:param min_score: 最小分数
+:return: 合并后的文档组，保留的文档数量
+'''
 def merge_query_hits(hit_groups, top_k: int, min_score: float):
     merged = {}
     total = 0

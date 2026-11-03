@@ -34,11 +34,13 @@ class TemporaryFileResponse(FileResponse):
         send: Send,
     ) -> None:
         try:
+            # 发送响应
             await super().__call__(scope, receive, send)
         finally:
+            # 清理临时目录
             await run_in_threadpool(self.temporary_directory.cleanup)
 
-
+# 构建下载响应
 async def build_download_response(document: Document) -> FileResponse:
     """下载原文件到临时目录，再交给 FastAPI 发送。"""
 
@@ -55,7 +57,8 @@ async def build_download_response(document: Document) -> FileResponse:
             status_code=409,
             detail="当前文档状态不允许下载",
         )
-
+    
+    # 下载文件到临时目录
     storage = get_storage()
     temporary_directory = TemporaryDirectory(prefix="rag-download-")
     local_path = Path(temporary_directory.name) / "original"
@@ -80,9 +83,9 @@ async def build_download_response(document: Document) -> FileResponse:
             },
         )
 
-    except S3Error as exc:
+    except S3Error as exc:# 处理 S3 错误，如文件不存在或存储桶不存在
         await run_in_threadpool(temporary_directory.cleanup)
-
+        # 记录错误日志
         logger.error(
             "Document download failed: id=%s, code=%s",
             document.id,
@@ -102,7 +105,7 @@ async def build_download_response(document: Document) -> FileResponse:
 
     except (HTTPError, OSError) as exc:
         await run_in_threadpool(temporary_directory.cleanup)
-
+        # 记录错误日志
         logger.error(
             "Document download failed: id=%s, type=%s",
             document.id,

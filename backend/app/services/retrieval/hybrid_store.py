@@ -6,6 +6,9 @@ from pymilvus import AnnSearchRequest, DataType, Function, FunctionType, RRFRank
 
 from app.services.retrieval.milvus_store import MilvusStore
 
+'''
+混合索引存储服务。
+'''
 HYBRID_COLLECTION = "rag_bge_large_zh_v15_hybrid_v2"
 FIELDS = [
     "chunk_id",
@@ -92,6 +95,14 @@ class HybridStore(MilvusStore):
         )
         return int(result[0]["count(*)"])
 
+    '''
+    混合检索
+    :param question: 问题向量
+    :param vector: 问题向量
+    :param scopes: 检索范围
+    :param limit: 检索数量
+    :return: 检索结果
+    '''
     def hybrid_search(self, question, vector, scopes, limit=20):
         if not scopes or not 1 <= limit <= 50 or len(vector) != 1024:
             raise ValueError("混合检索范围、维度或数量异常")

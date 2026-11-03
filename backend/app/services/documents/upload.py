@@ -28,11 +28,11 @@ CONTENT_TYPES = {
     ".html": "text/html",
 }
 
-
+# 准备文件
 def prepare_file(
-    source: BinaryIO,
-    destination: Path,
-    max_bytes: int,
+    source: BinaryIO,# 输入文件流
+    destination: Path,# 输出文件路径
+    max_bytes: int,# 最大文件大小（字节）
 ) -> tuple[int, str]:
     """分块保存临时文件，同时检查大小并计算摘要。"""
 
@@ -62,7 +62,6 @@ def prepare_file(
     return size, digest.hexdigest()
 
 
-# 提交数据库变更；失败时回滚并返回可追踪的文档编号。
 async def commit_or_report(
     session: AsyncSession,
     document_id: UUID,
@@ -130,7 +129,7 @@ async def upload_document(
             status_code=413,
             detail="文件超过配置的大小限制",
         )
-
+    # 上传文件到存储
     storage = get_storage()
     document_id = uuid4()
     object_name = f"{knowledge_base_id}/{document_id}{suffix}"
@@ -144,7 +143,9 @@ async def upload_document(
             local_path,
             max_bytes,
         )
-
+        # 检查是否存在相同摘要的文档
+        # 如果存在，返回已存在的文档
+        # 如果不存在，创建新文档
         existing = await session.scalar(
             select(Document)
             .where(

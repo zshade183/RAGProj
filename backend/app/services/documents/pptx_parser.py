@@ -6,13 +6,21 @@ from pptx.enum.shapes import MSO_SHAPE_TYPE
 
 from app.services.documents.visual_structure import extract_chart, extract_table
 
-
+# 归一化文本
 def normalize_text(text: str) -> str:
     """保留换行，将 PowerPoint 软换行转换为普通换行。"""
 
     return text.replace("\r\n", "\n").replace("\v", "\n").strip()
 
-
+# 解析形状
+'''
+解析形状，包括文本框、图表、图片、表格等。
+参数：
+shape：PPTX 形状对象。
+shape_path：形状路径，用于递归处理。
+返回：
+包含形状信息的字典。
+'''
 def parse_shape(shape, shape_path: str) -> dict[str, Any]:
     """读取一个形状；组合形状递归处理。"""
 
@@ -22,13 +30,13 @@ def parse_shape(shape, shape_path: str) -> dict[str, Any]:
         "name": shape.name,
         "shape_type": str(shape.shape_type),
         "bbox_emu": [
-            int(shape.left),
-            int(shape.top),
-            int(shape.width),
-            int(shape.height),
+            int(shape.left),# 左坐标，单位：EMU
+            int(shape.top),# 顶部坐标，单位：EMU
+            int(shape.width),# 宽度，单位：EMU
+            int(shape.height),# 高度，单位：EMU
         ],
     }
-
+    # 处理组合形状
     if shape.shape_type == MSO_SHAPE_TYPE.GROUP:
         block.update(
             {
@@ -39,10 +47,10 @@ def parse_shape(shape, shape_path: str) -> dict[str, Any]:
             }
         )
         return block
-
+    # 处理表格
     if shape.has_table:
         return {**block, **extract_table(shape, block), "type": "table"}
-
+    # 处理图片
     if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
         block.update(
             {
@@ -52,10 +60,10 @@ def parse_shape(shape, shape_path: str) -> dict[str, Any]:
             }
         )
         return block
-
+    # 处理图表
     if shape.has_chart:
         return {**block, **extract_chart(shape, block), "type": "chart"}
-
+    # 处理文本框
     if shape.has_text_frame:
         paragraphs = [
             {
@@ -64,7 +72,7 @@ def parse_shape(shape, shape_path: str) -> dict[str, Any]:
             }
             for paragraph in shape.text_frame.paragraphs
         ]
-
+        # 处理文本框中的公式
         block.update(
             {
                 "type": "text",
@@ -95,7 +103,14 @@ def parse_shape(shape, shape_path: str) -> dict[str, Any]:
     )
     return block
 
-
+# 遍历所有块
+'''
+遍历所有块，包括普通块和组合形状中的所有子块。
+参数：
+blocks：包含所有块的列表。
+返回：
+一个生成器，按层级遍历所有块。
+'''
 def walk_blocks(blocks):
     """遍历普通块以及组合形状中的所有子块。"""
 
@@ -104,10 +119,17 @@ def walk_blocks(blocks):
         if block["type"] == "group":
             yield from walk_blocks(block["children"])
 
-
+# 解析 PPTX 文件
+'''
+解析 PPTX 文件，提取所有元素，包括文本、图表、图片、表格等。
+参数：
+file_path：PPTX 文件路径。
+返回：
+包含所有元素的字典。
+'''
 def parse_pptx(file_path: Path) -> dict[str, Any]:
     """提取 PPTX 原生元素，不执行 OCR。"""
-
+    # 读取 PPTX 文件
     presentation = Presentation(str(file_path))
     pages = []
 
